@@ -786,6 +786,7 @@ export function renderPage(
   };
 
   let prevParagraphBorders: ParagraphBorders | undefined;
+  const renderedInlineImageKeysByBlock = new Map<string, Set<string>>();
 
   for (let i = 0; i < page.fragments.length; i++) {
     const fragment = page.fragments[i];
@@ -807,6 +808,12 @@ export function renderPage(
         const paragraphBlock = blockData.block as ParagraphBlock;
         const nextBorders =
           i + 1 < page.fragments.length ? getParaBorders(page.fragments[i + 1]) : undefined;
+        const blockKey = String(fragment.blockId);
+        let renderedInlineImageKeys = renderedInlineImageKeysByBlock.get(blockKey);
+        if (!renderedInlineImageKeys) {
+          renderedInlineImageKeys = new Set<string>();
+          renderedInlineImageKeysByBlock.set(blockKey, renderedInlineImageKeys);
+        }
 
         fragmentEl = renderParagraphFragment(
           fragment as ParagraphFragment,
@@ -819,6 +826,7 @@ export function renderPage(
             fragmentContentY: fragmentContentY,
             prevBorders: prevParagraphBorders,
             nextBorders,
+            renderedInlineImageKeys,
           }
         );
         prevParagraphBorders = paragraphBlock.attrs?.borders;
@@ -897,20 +905,26 @@ export function renderPage(
     headerEl.style.left = `${page.margins.left}px`;
     headerEl.style.right = `${page.margins.right}px`;
     headerEl.style.width = `${headerContentWidth}px`;
-    if (!headerOverflows) {
-      headerEl.style.maxHeight = `${availableHeaderHeight}px`;
-      headerEl.style.overflow = 'hidden';
-    }
     // Minimum height so empty areas are clickable
     headerEl.style.minHeight = '24px';
 
+    let shouldClipHeader = !headerOverflows;
     if (options.headerContent && options.headerContent.blocks.length > 0) {
       const headerContentEl = renderHeaderFooterContent(
         options.headerContent,
         { ...context, section: 'header', contentWidth: headerContentWidth },
         options
       );
+      // Do not clip header containers that include media. Their measured content
+      // height can exclude absolutely positioned runs, which causes visible cut-off.
+      if (headerContentEl.querySelector('img')) {
+        shouldClipHeader = false;
+      }
       headerEl.appendChild(headerContentEl);
+    }
+    if (shouldClipHeader) {
+      headerEl.style.maxHeight = `${availableHeaderHeight}px`;
+      headerEl.style.overflow = 'hidden';
     }
     pageEl.appendChild(headerEl);
   }
@@ -931,19 +945,23 @@ export function renderPage(
     footerEl.style.left = `${page.margins.left}px`;
     footerEl.style.right = `${page.margins.right}px`;
     footerEl.style.width = `${footerContentWidth}px`;
-    if (!footerOverflows) {
-      footerEl.style.maxHeight = `${availableFooterHeight}px`;
-      footerEl.style.overflow = 'hidden';
-    }
     footerEl.style.minHeight = '24px';
 
+    let shouldClipFooter = !footerOverflows;
     if (options.footerContent && options.footerContent.blocks.length > 0) {
       const footerContentEl = renderHeaderFooterContent(
         options.footerContent,
         { ...context, section: 'footer', contentWidth: footerContentWidth },
         options
       );
+      if (footerContentEl.querySelector('img')) {
+        shouldClipFooter = false;
+      }
       footerEl.appendChild(footerContentEl);
+    }
+    if (shouldClipFooter) {
+      footerEl.style.maxHeight = `${availableFooterHeight}px`;
+      footerEl.style.overflow = 'hidden';
     }
     pageEl.appendChild(footerEl);
   }
