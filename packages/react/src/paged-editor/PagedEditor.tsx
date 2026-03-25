@@ -225,6 +225,10 @@ export interface PagedEditorRef {
   undo(): boolean;
   /** Redo. */
   redo(): boolean;
+  /** Whether undo is available. */
+  canUndo(): boolean;
+  /** Whether redo is available. */
+  canRedo(): boolean;
   /** Set selection by PM position. */
   setSelection(anchor: number, head?: number): void;
   /** Get current layout. */
@@ -3588,6 +3592,12 @@ const PagedEditorComponent = forwardRef<PagedEditorRef, PagedEditorProps>(
         redo() {
           return hiddenPMRef.current?.redo() ?? false;
         },
+        canUndo() {
+          return hiddenPMRef.current?.canUndo() ?? false;
+        },
+        canRedo() {
+          return hiddenPMRef.current?.canRedo() ?? false;
+        },
         setSelection(anchor: number, head?: number) {
           hiddenPMRef.current?.setSelection(anchor, head);
         },
@@ -3636,6 +3646,8 @@ const PagedEditorComponent = forwardRef<PagedEditorRef, PagedEditorProps>(
           dispatch: (tr) => hiddenPMRef.current?.dispatch(tr),
           undo: () => hiddenPMRef.current?.undo() ?? false,
           redo: () => hiddenPMRef.current?.redo() ?? false,
+          canUndo: () => hiddenPMRef.current?.canUndo() ?? false,
+          canRedo: () => hiddenPMRef.current?.canRedo() ?? false,
           setSelection: (anchor, head) => hiddenPMRef.current?.setSelection(anchor, head),
           getLayout: () => layout,
           relayout: () => {

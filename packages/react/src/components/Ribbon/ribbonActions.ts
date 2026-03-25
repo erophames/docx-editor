@@ -36,6 +36,8 @@ export interface RibbonActionContext {
   onOpenImageSize?: (focus?: ImageSizeDialogFocusTarget) => void;
   onNewComment?: () => void;
   onDeleteComment?: () => void;
+  onInsertFootnote?: () => void;
+  onInsertEndnote?: () => void;
   onCopy?: () => void;
   onCut?: () => void;
   onPaste?: () => void;
@@ -103,6 +105,8 @@ export const ribbonActions: Record<string, (ctx: RibbonActionContext) => void> =
   aspectRatio: (ctx) => ctx.onOpenImageSize?.('lock'),
   newComment: (ctx) => ctx.onNewComment?.(),
   deleteComment: (ctx) => ctx.onDeleteComment?.(),
+  insertFootnote: (ctx) => ctx.onInsertFootnote?.(),
+  insertEndnote: (ctx) => ctx.onInsertEndnote?.(),
   toggleComments: (ctx) => ctx.onToggleComments?.(),
   trackChanges: (ctx) => {
     if (!ctx.onSetEditingMode) return;

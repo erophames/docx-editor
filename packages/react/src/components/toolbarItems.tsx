@@ -151,6 +151,8 @@ export interface UseToolbarItemsOptions {
   sectionProperties?: SectionProperties | null;
   onInsertTOC?: () => void;
   onUpdateTOC?: () => void;
+  onInsertFootnote?: () => void;
+  onInsertEndnote?: () => void;
   onAcceptAllChanges?: () => void;
   onRejectAllChanges?: () => void;
   onSetIndentLeft?: (twips: number) => void;
@@ -236,6 +238,8 @@ export function useToolbarItems(options: UseToolbarItemsOptions): {
     sectionProperties,
     onInsertTOC,
     onUpdateTOC,
+    onInsertFootnote,
+    onInsertEndnote,
     onAcceptAllChanges,
     onRejectAllChanges,
     onSetIndentLeft,
@@ -998,6 +1002,8 @@ export function useToolbarItems(options: UseToolbarItemsOptions): {
       onInsertImage,
       onInsertTOC,
       onUpdateTOC,
+      onInsertFootnote,
+      onInsertEndnote,
       onAcceptAllChanges,
       onRejectAllChanges,
       onSetIndentLeft,
@@ -1043,6 +1049,8 @@ export function useToolbarItems(options: UseToolbarItemsOptions): {
       onInsertImage,
       onInsertTOC,
       onUpdateTOC,
+      onInsertFootnote,
+      onInsertEndnote,
       onAcceptAllChanges,
       onRejectAllChanges,
       onSetIndentLeft,

@@ -30,6 +30,8 @@ export interface RibbonProps {
   onInsertSectionBreak?: (breakType: SectionBreakType) => void;
   onInsertTOC?: () => void;
   onUpdateTOC?: () => void;
+  onInsertFootnote?: () => void;
+  onInsertEndnote?: () => void;
   onAcceptAllChanges?: () => void;
   onRejectAllChanges?: () => void;
   onSetIndentLeft?: (twips: number) => void;
@@ -149,6 +151,8 @@ export function Ribbon({
   onInsertSectionBreak,
   onInsertTOC,
   onUpdateTOC,
+  onInsertFootnote,
+  onInsertEndnote,
   onAcceptAllChanges,
   onRejectAllChanges,
   onSetIndentLeft,
@@ -206,6 +210,8 @@ export function Ribbon({
     onInsertSectionBreak,
     onInsertTOC,
     onUpdateTOC,
+    onInsertFootnote,
+    onInsertEndnote,
     onAcceptAllChanges,
     onRejectAllChanges,
     onSetIndentLeft,

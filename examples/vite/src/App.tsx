@@ -4,8 +4,6 @@ import {
   type DocxEditorRef,
   createEmptyDocument,
   type Document,
-  PluginHost,
-  createSpellcheckPlugin,
 } from '@eigenpal/docx-js-editor';
 import { ExampleSwitcher } from '../../shared/ExampleSwitcher';
 import { GitHubBadge } from '../../shared/GitHubBadge';
@@ -389,28 +387,14 @@ export function App() {
   const showToolbarWhenReadOnly =
     queryParams.get('showToolbarWhenReadOnly') !== '0' &&
     queryParams.get('showToolbarWhenReadOnly') !== 'false';
-  const spellcheckParam = queryParams.get('spellcheck');
-  const spellcheckOverlayParam = queryParams.get('spellcheckOverlay');
-  const disableSpellcheck =
-    spellcheckParam === '0' ||
-    spellcheckParam === 'false' ||
-    spellcheckParam === 'off' ||
-    queryParams.get('disableSpellcheck') === '1' ||
-    queryParams.get('disableSpellcheck') === 'true';
-  const disableSpellcheckOverlay =
-    spellcheckOverlayParam === '0' ||
-    spellcheckOverlayParam === 'false' ||
-    spellcheckOverlayParam === 'off';
-  const spellcheck = useMemo(
-    () => createSpellcheckPlugin({ renderOverlay: !disableSpellcheckOverlay }),
-    [disableSpellcheckOverlay]
-  );
-  const plugins = disableSpellcheck ? [] : [spellcheck];
+  const demoParam = queryParams.get('demo');
+  const shouldLoadDemo = demoParam !== '0' && demoParam !== 'false';
   const randomAuthor = useMemo(
     () => `Docx Editor User ${Math.floor(Math.random() * 900) + 100}`,
     []
   );
   const editorRef = useRef<DocxEditorRef>(null);
+  const hasUserDocumentRef = useRef(false);
   const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
   const [documentBuffer, setDocumentBuffer] = useState<ArrayBuffer | null>(null);
   const [fileName, setFileName] = useState<string>('docx-editor-demo.docx');
@@ -420,17 +404,30 @@ export function App() {
   const { zoom: autoZoom, isMobile } = useResponsiveLayout();
 
   useEffect(() => {
+    let cancelled = false;
+    if (!shouldLoadDemo) {
+      setCurrentDocument(createEmptyDocument());
+      setFileName('Untitled.docx');
+      return () => {
+        cancelled = true;
+      };
+    }
     fetch('/docx-editor-demo.docx')
       .then((res) => res.arrayBuffer())
       .then((buffer) => {
+        if (cancelled || hasUserDocumentRef.current) return;
         setDocumentBuffer(buffer);
         setFileName('docx-editor-demo.docx');
       })
       .catch(() => {
+        if (cancelled || hasUserDocumentRef.current) return;
         setCurrentDocument(createEmptyDocument());
         setFileName('Untitled.docx');
       });
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldLoadDemo]);
 
   const updateQueryParam = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(window.location.search);
@@ -443,6 +440,7 @@ export function App() {
   }, []);
 
   const handleNewDocument = useCallback(() => {
+    hasUserDocumentRef.current = true;
     setCurrentDocument(createEmptyDocument());
     setDocumentBuffer(null);
     setFileName('Untitled.docx');
@@ -454,6 +452,7 @@ export function App() {
     if (!file) return;
 
     try {
+      hasUserDocumentRef.current = true;
       setStatus('Loading...');
       const buffer = await file.arrayBuffer();
       setCurrentDocument(null);
@@ -580,24 +579,22 @@ export function App() {
       )}
 
       <main style={styles.main}>
-        <PluginHost plugins={plugins}>
-          <DocxEditor
-            ref={editorRef}
-            document={documentBuffer ? undefined : currentDocument}
-            documentBuffer={documentBuffer}
-            author={randomAuthor}
-            onChange={handleDocumentChange}
-            onError={handleError}
-            onFontsLoaded={handleFontsLoaded}
-            toolbar={toolbarMode}
-            showToolbarWhenReadOnly={showToolbarWhenReadOnly}
-            showRuler={!isMobile}
-            showZoomControl={true}
-            showPageNumbers={false}
-            initialZoom={autoZoom}
-            readOnly={readOnly}
-          />
-        </PluginHost>
+        <DocxEditor
+          ref={editorRef}
+          document={documentBuffer ? undefined : currentDocument}
+          documentBuffer={documentBuffer}
+          author={randomAuthor}
+          onChange={handleDocumentChange}
+          onError={handleError}
+          onFontsLoaded={handleFontsLoaded}
+          toolbar={toolbarMode}
+          showToolbarWhenReadOnly={showToolbarWhenReadOnly}
+          showRuler={!isMobile}
+          showZoomControl={true}
+          showPageNumbers={false}
+          initialZoom={autoZoom}
+          readOnly={readOnly}
+        />
       </main>
     </div>
   );

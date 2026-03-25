@@ -69,4 +69,16 @@ describe('ribbonActions (missing commands)', () => {
     ribbonActions.deleteComment({ onDeleteComment });
     expect(onDeleteComment).toHaveBeenCalledTimes(1);
   });
+
+  it('insert footnote triggers handler', () => {
+    const onInsertFootnote = vi.fn();
+    ribbonActions.insertFootnote({ onInsertFootnote });
+    expect(onInsertFootnote).toHaveBeenCalledTimes(1);
+  });
+
+  it('insert endnote triggers handler', () => {
+    const onInsertEndnote = vi.fn();
+    ribbonActions.insertEndnote({ onInsertEndnote });
+    expect(onInsertEndnote).toHaveBeenCalledTimes(1);
+  });
 });

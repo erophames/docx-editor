@@ -9,7 +9,7 @@ test.describe('Ribbon - tabs', () => {
     await expect(page.getByRole('tab', { name: 'Insert' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Layout' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Review' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'View' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'View', exact: true })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'References' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Developer' })).toBeVisible();
 
